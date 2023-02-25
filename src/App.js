@@ -3,6 +3,9 @@ import axios from 'axios'
 import windIcon from './images/wind.png'
 import rainIcon from './images/rain.png'
 import sunriseIcon from  './images/sunrise.png'
+import sunshineBG from './images/sunshine-bg.jpeg'
+import sunriseBG from './images/sunrise-bg.jpeg'
+import nightBG from './images/night-bg.jpeg'
 
 const App = () => {
 
@@ -14,7 +17,6 @@ const App = () => {
   const [location, setLocation] = useState('london')
   const [inputField, setinputField] = useState('')
   const [error, setError] = useState(false)
-
   const apiKey = process.env.REACT_APP_API_KEY
 
   useEffect(() => {
@@ -35,6 +37,19 @@ const App = () => {
     getData()
   }, [location])
 
+  function findGps() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(position => {
+        const latitude = position.coords.latitude
+        const longitude = position.coords.longitude
+        setinputField(`${latitude}, ${longitude}`)
+      })
+    } else {
+      console.error('Geolocation is not supported by this browser.')
+    }
+  }
+  console.log(location)
+
   function handleChange(e) {
     setinputField(e.target.value)
   }
@@ -44,8 +59,6 @@ const App = () => {
     setLocation(inputField.toLowerCase())
     setinputField('')
   }
-
-  console.log(weatherData)
 
   function tempChange(temp) {
     const convertedToCelc = (temp - 32) * 5 / 9
@@ -57,15 +70,17 @@ const App = () => {
   
   if (weatherData) {
     ({ resolvedAddress, alerts, timezone, currentConditions, days, description } = weatherData),
-    ({ cloudcover, conditions, datetime, feelslike, temp, humidity, sunrise, sunset, windspeed, precipprob } = currentConditions)
+    ({ cloudcover, conditions, datetime, feelslike, temp, humidity, sunrise, sunset, windspeed, precipprob } = currentConditions) 
   } else {
     return 'Data is unavailable'
   }
 
-  console.log('day data', dayData)
+  // const time = Number(datetime.slice(0, 2))
+  const time = 11
+  const bgStyle = { backgroundImage: time < 10 && time >= 6  ? `url(${sunriseBG})` : time >= 10 && time < 21 ? `url(${sunshineBG})` : time >= 21 && time <= 24 || time >= 0 && time < 6 ? `url(${nightBG})` : '' }
 
   return (
-    <div className='weather--app--container'>
+    <div className='weather--app--container' style={bgStyle}>
       <div className='input--temp--div'>
         { error ? null :
           <button className='temp--convert--btn' onClick={() => {
@@ -73,6 +88,7 @@ const App = () => {
           }}>{tempToggle ? 'Convert to °F' : 'Convert to °C'}</button>}
         {weatherData && <h1 className='time'>{datetime.slice(0, 5)}</h1>}
         <form onSubmit={handleSubmit}>
+          <button type='button' className='location--btn' onClick={findGps}>&#8982;</button>
           <input onChange={handleChange} placeholder='Change location' value={inputField}/>
           <button className='submit--btn' type='submit'>Go</button>
         </form>
@@ -82,9 +98,8 @@ const App = () => {
         weatherData &&
         <>
           {dayData ? 
-            <div className='day--container'>
+            <div className='single--day--container'>
               <div className='day--header'>
-                <h3 className='day--title'>{resolvedAddress}</h3> 
                 <button className='close--btn' onClick={() => {
                   setWeatherData(prevData => {
                     const updatedDay = prevData.days.map(day => {
@@ -96,27 +111,32 @@ const App = () => {
                 }}>&#10232;</button>
               </div>
               <div className='day--weather'>
-                <h3>{new Date(dayData.datetime).toLocaleString('en-GB', { weekday: 'long' })}</h3>
-                <p>{dayData.datetime}</p>
-                <p>Cloud cover: {dayData.cloudcover}</p>
-                <p>{dayData.description}</p>
-                <p>Max {tempToggle ? `${tempChange(dayData.tempmax)}°C`  : dayData.tempmax + '°F'}</p>
-                <p>Min {tempToggle ? `${tempChange(dayData.tempmin)}°C`  : dayData.tempmin + '°F'}</p>
-                <p>Feels like: {tempToggle ? `${tempChange(dayData.feelslike)}°C`  : dayData.feelslike + '°F'}</p>
-                <p>{dayData.conditions}</p>
-                <p>{tempToggle ? `${tempChange(dayData.temp)}°C`  : dayData.temp + '°F'}</p>
-                <div className='rain--day--div'>
-                  <p>{dayData.precipprob}%</p>
-                  <img src={rainIcon} style={{ width: 40, height: 40 }} />
+                <div className='day--weather--left'>
+                  <h3 className='day--title'>{resolvedAddress}</h3> 
+                  <h3 className='day--weather--left--p'>{new Date(dayData.datetime).toLocaleString('en-GB', { weekday: 'long' })}</h3>
+                  <p className='day--weather--left--p'>{dayData.datetime}</p>
+                  <p className='day--weather--left--p'>Cloud cover: {dayData.cloudcover}</p>
+                  <p className='day--weather--left--p'>Day&apos;s description: {dayData.description}</p>
                 </div>
-                <div className='wind--day--div'>
-                  <p>{dayData.windspeed}mph</p>
-                  <img src={windIcon} style={{ width: 40, height: 40 }} />
-                </div>
-                <div className='sunrise--div'>
-                  <p>{dayData.sunrise.slice(0, 5)}</p>
-                  <img src={sunriseIcon} style={{ width: 40, height: 40 }} />
-                  <p>{dayData.sunset.slice(0, 5)}</p>
+                <div className='day--weather--right'>
+                  <div className='sunrise--div'>
+                    <p className='sun--p'>{dayData.sunrise.slice(0, 5)}</p>
+                    <img src={sunriseIcon} style={{ width: 40, height: 40 }} />
+                    <p className='sun--p'>{dayData.sunset.slice(0, 5)}</p>
+                  </div>
+                  <p className='day--weather--right--p'>Max {tempToggle ? `${tempChange(dayData.tempmax)}°C`  : dayData.tempmax + '°F'}</p>
+                  <p className='day--weather--right--p'>Min {tempToggle ? `${tempChange(dayData.tempmin)}°C`  : dayData.tempmin + '°F'}</p>
+                  <p className='day--weather--right--p'>Feels like: {tempToggle ? `${tempChange(dayData.feelslike)}°C`  : dayData.feelslike + '°F'}</p>
+                  <p className='day--weather--right--p'>{dayData.conditions}</p>
+                  <p className='day--weather--right--p'>{tempToggle ? `${tempChange(dayData.temp)}°C`  : dayData.temp + '°F'}</p>
+                  <div className='rain--day--div'>
+                    <p className='day--weather--right--p'>{dayData.precipprob}%</p>
+                    <img src={rainIcon} style={{ width: 40, height: 40 }} />
+                  </div>
+                  <div className='wind--day--div'>
+                    <p className='day--weather--right--p'>{dayData.windspeed}mph</p>
+                    <img src={windIcon} style={{ width: 40, height: 40 }} />
+                  </div>
                 </div>
               </div>
               <div className='day--data--hour'>
@@ -151,13 +171,13 @@ const App = () => {
                 </header>
 
                 <div className='current--conditions'>
+                  <div className='sunrise--div'>
+                    <p className='sun--p'>{sunrise.slice(0, 5)}</p>
+                    <img src={sunriseIcon} style={{ width: 40, height: 40 }} />
+                    <p className='sun--p'>{sunset.slice(0, 5)}</p>
+                  </div>
                   <p>Feels like: {tempToggle ? `${tempChange(feelslike)}°C`  : feelslike + '°F'}</p>
                   <p>{tempToggle ? `${tempChange(temp)}°C` : temp + '°F'}</p>
-                  <div className='sunrise--div'>
-                    <p>{sunrise.slice(0, 5)}</p>
-                    <img src={sunriseIcon} style={{ width: 40, height: 40 }} />
-                    <p>{sunset.slice(0, 5)}</p>
-                  </div>
                   <div className='rain--current--div'>
                     <img src={rainIcon} style={{ width: 40, height: 40 }} />
                     <p>{precipprob}%</p>
