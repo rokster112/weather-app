@@ -1,3 +1,96 @@
 * {
   box-sizing: border-box;
 }
+
+
+.weather--app--container {
+    display: flex;
+    flex-direction: column;
+    height: 95vh;
+
+  .input--temp--div {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    align-items: center;
+    .time {
+      margin: 0;
+    }
+    .temp--convert--btn {
+      color: yellowgreen;
+    }
+  }
+  .header--current--div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-grow: 1;
+    .current--conditions {
+      text-align: end;
+    }
+  }
+  .wind--div, .rain--div {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .wind--current--div, .rain--current--div {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    
+  }
+  .sunrise--div {
+    display: flex;
+    flex-direction: row;
+  }
+  .days--container {
+    display: flex;
+    flex-direction: row;
+    overflow: scroll;
+    padding-inline: 10px;
+    align-items: center;
+    .individual--day {
+      margin-inline: 5px;
+      .day--btn {
+        width: 100px;
+      }
+    }
+  }
+  .day--data--hour {
+    display: flex;
+    flex-direction: row;
+    overflow: scroll;
+    padding-inline: 10px;
+    .single--hour--div {
+      margin-inline: 5px;
+      .single--hour--text {
+        margin-top: 5px;
+      }
+    }
+    .single--hour--btn {
+      width: 120px;
+    }
+  }
+  .wind--day--div, .rain--day--div {
+    display: flex;
+    flex-direction: row;
+  }
+  .day--header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    .close--btn {
+      font-size: 3.8rem;
+      width: 100px;
+      height: 35px;
+      margin-right: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+}

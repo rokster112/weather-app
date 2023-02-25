@@ -48,7 +48,8 @@ const App = () => {
   console.log(weatherData)
 
   function tempChange(temp) {
-    const convertedToCelc = (temp - 32) * 5 / 9 
+    const convertedToCelc = (temp - 32) * 5 / 9
+    return convertedToCelc.toFixed(1) 
   }
 
 
@@ -65,14 +66,15 @@ const App = () => {
 
   return (
     <div className='weather--app--container'>
-      <div>
+      <div className='input--temp--div'>
         { error ? null :
-          <button onClick={() => {
+          <button className='temp--convert--btn' onClick={() => {
             setTempToggle(!tempToggle)
           }}>{tempToggle ? 'Convert to °F' : 'Convert to °C'}</button>}
+        {weatherData && <h1 className='time'>{datetime.slice(0, 5)}</h1>}
         <form onSubmit={handleSubmit}>
           <input onChange={handleChange} placeholder='Change location' value={inputField}/>
-          <button type='submit'>Go</button>
+          <button className='submit--btn' type='submit'>Go</button>
         </form>
       </div>
       {error ?
@@ -80,86 +82,97 @@ const App = () => {
         weatherData &&
         <>
           {dayData ? 
-            <div>
-              <h1>{resolvedAddress}</h1> 
-              <h1 onClick={() => {
-                setWeatherData(prevData => {
-                  const updatedDay = prevData.days.map(day => {
-                    return { ...day, clicked: false }
+            <div className='day--container'>
+              <div className='day--header'>
+                <h3 className='day--title'>{resolvedAddress}</h3> 
+                <button className='close--btn' onClick={() => {
+                  setWeatherData(prevData => {
+                    const updatedDay = prevData.days.map(day => {
+                      return { ...day, clicked: false }
+                    })
+                    return { ...prevData, days: updatedDay }
                   })
-                  return { ...prevData, days: updatedDay }
-                })
-                setDayData(false)
-              }}>X</h1>
-              <div>
+                  setDayData(false)
+                }}>&#10232;</button>
+              </div>
+              <div className='day--weather'>
+                <h3>{new Date(dayData.datetime).toLocaleString('en-GB', { weekday: 'long' })}</h3>
+                <p>{dayData.datetime}</p>
                 <p>Cloud cover: {dayData.cloudcover}</p>
                 <p>{dayData.description}</p>
-                <p>Max {tempToggle ? `${((dayData.tempmax - 32) * 5 / 9).toFixed(1)}°C`  : dayData.tempmax + '°F'}</p>
-                <p>Min {tempToggle ? `${((dayData.tempmin - 32) * 5 / 9).toFixed(1)}°C`  : dayData.tempmin + '°F'}</p>
-                <p>Feels like: {tempToggle ? `${((dayData.feelslike - 32) * 5 / 9).toFixed(1)}°C`  : dayData.feelslike + '°F'}</p>
+                <p>Max {tempToggle ? `${tempChange(dayData.tempmax)}°C`  : dayData.tempmax + '°F'}</p>
+                <p>Min {tempToggle ? `${tempChange(dayData.tempmin)}°C`  : dayData.tempmin + '°F'}</p>
+                <p>Feels like: {tempToggle ? `${tempChange(dayData.feelslike)}°C`  : dayData.feelslike + '°F'}</p>
                 <p>{dayData.conditions}</p>
-                <p>{tempToggle ? `${((dayData.temp - 32) * 5 / 9).toFixed(1)}°C`  : dayData.temp + '°F'}</p>
-                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                  <img src={rainIcon} style={{ width: 40, height: 40 }} />
+                <p>{tempToggle ? `${tempChange(dayData.temp)}°C`  : dayData.temp + '°F'}</p>
+                <div className='rain--day--div'>
                   <p>{dayData.precipprob}%</p>
+                  <img src={rainIcon} style={{ width: 40, height: 40 }} />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                <div className='wind--day--div'>
+                  <p>{dayData.windspeed}mph</p>
                   <img src={windIcon} style={{ width: 40, height: 40 }} />
-                  <p>{dayData.windspeed}</p>
                 </div>
                 <div className='sunrise--div'>
-                  <p>{dayData.sunrise}</p>
+                  <p>{dayData.sunrise.slice(0, 5)}</p>
                   <img src={sunriseIcon} style={{ width: 40, height: 40 }} />
-                  <p>{dayData.sunset}</p>
+                  <p>{dayData.sunset.slice(0, 5)}</p>
                 </div>
               </div>
-              <div className='day--data--hour' style={{ display: 'flex', justifyContent: 'center', flexDirection: 'row', overflow: 'scroll' }}>
+              <div className='day--data--hour'>
                 {dayData.hours.map((hour, i) => {
                   const { conditions, datetime, precipprob, temp, windspeed } = hour
-                  return <div key={i}>
-                    <h2>{datetime.slice(0, 5)}</h2>
-                    <p>{conditions}</p>
-                    <p>{tempToggle ? `${((temp - 32) * 5 / 9).toFixed(1)}°C`  : temp + '°F'}</p>
-                    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                      <img src={windIcon} style={{ width: 40, height: 40 }} />
-                      <p>{windspeed}</p>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                      <img src={rainIcon} style={{ width: 40, height: 40 }} />
-                      <p>{precipprob}%</p>
-                    </div>
+                  return <div key={i} className='single--hour--div'>
+                    <button className='single--hour--btn'>
+                      <h2 className='single--hour--text'>{datetime.slice(0, 5)}</h2>
+                      <p className='single--hour--text'>{conditions}</p>
+                      <p className='single--hour--text'>{tempToggle ? `${tempChange(temp)}°C`  : temp + '°F'}</p>
+                      <div className='wind--div'>
+                        <img src={windIcon} style={{ width: 40, height: 40 }} />
+                        <p className='single--hour--text'>{windspeed}mph</p>
+                      </div>
+                      <div className='rain--div'>
+                        <img src={rainIcon} style={{ width: 40, height: 40 }} />
+                        <p className='single--hour--text'>{precipprob}%</p>
+                      </div>
+                    </button>
                   </div>
                 })}
               </div>
             </div>
             :
-            <><div>
-              <h3>{resolvedAddress}</h3>
-              <p>{timezone} - {datetime.slice(0, 5)}</p>
-              <p>{description}</p>
-            </div><>
-              <div className='current--conditions'>
-                <p>{conditions}</p>
-                <p>Feels like: {tempToggle ? `${((feelslike - 32) * 5 / 9).toFixed(1)}°C`  : feelslike + '°F'}</p>
-                <p>{tempToggle ? `${((temp - 32) * 5 / 9).toFixed(1)}°C` : temp + '°F'}</p>
-                <div className='sunrise--div'>
-                  <p>{sunrise.slice(0, 5)}</p>
-                  <img src={sunriseIcon} style={{ width: 40, height: 40 }} />
-                  <p>{sunset.slice(0, 5)}</p>
+            <>
+              <div className='header--current--div'>
+                <header>
+                  <h3>{resolvedAddress}</h3>
+                  <p>Timezone: {timezone}</p>
+                  <p>Day&apos;s description - {description}</p>
+                  <p>{conditions}</p>
+                </header>
+
+                <div className='current--conditions'>
+                  <p>Feels like: {tempToggle ? `${tempChange(feelslike)}°C`  : feelslike + '°F'}</p>
+                  <p>{tempToggle ? `${tempChange(temp)}°C` : temp + '°F'}</p>
+                  <div className='sunrise--div'>
+                    <p>{sunrise.slice(0, 5)}</p>
+                    <img src={sunriseIcon} style={{ width: 40, height: 40 }} />
+                    <p>{sunset.slice(0, 5)}</p>
+                  </div>
+                  <div className='rain--current--div'>
+                    <img src={rainIcon} style={{ width: 40, height: 40 }} />
+                    <p>{precipprob}%</p>
+                  </div>
+                  <div className='wind--current--div'>
+                    <img src={windIcon} style={{ width: 40, height: 40 }} />
+                    <p>{windspeed}mph</p>
+                  </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                  <img src={rainIcon} style={{ width: 40, height: 40 }} />
-                  <p>{precipprob}%</p>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                  <img src={windIcon} style={{ width: 40, height: 40 }} />
-                  <p>{windspeed}</p>
-                </div>
-              </div></><div>
+              </div>
+
               <div className='days--container'>
                 {days.map((day, index) => {
                   return <div key={index} className='individual--day'>
-                    <button value={day.clicked} onClick={() => {
+                    <button className='day--btn' value={day.clicked} onClick={() => {
                       setWeatherData(prevData => {
                         const updatedDays = [...prevData.days]
                         updatedDays[index].clicked = !updatedDays[index].clicked
@@ -169,22 +182,21 @@ const App = () => {
                     } }>
                       <>
                         <h4>{new Date(day.datetime).toLocaleString('en-GB', { weekday: 'long' })}</h4>
-                        <p>{tempToggle ? `${((day.temp - 32) * 5 / 9).toFixed(1)}°C` : day.temp + '°F'}</p>
-                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                        <p>{tempToggle ? `${tempChange(day.temp)}°C` : day.temp + '°F'}</p>
+                        <div className='rain--div'>
                           <img src={rainIcon} style={{ width: 40, height: 40 }} />
                           <p>{precipprob}%</p>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                        <div className='wind--div'>
                           <img src={windIcon} style={{ width: 40, height: 40 }} />
-                          <p>{day.windspeed}</p>
+                          <p>{day.windspeed}mph</p>
                         </div>
                       </>
                     </button>
                   </div>
                 })}
               </div>
-            </div></>
-          
+            </>
           }
         </>
       }
