@@ -6,17 +6,22 @@ import sunriseIcon from  './images/sunrise.png'
 import sunshineBG from './images/sunshine-bg.jpeg'
 import sunriseBG from './images/sunrise-bg.jpeg'
 import nightBG from './images/night-bg.jpeg'
+import SingleDay from './components/SingleDay'
+import AllDays from './components/AllDays'
+import Alerts from './components/Alerts'
+import warningIcon from './images/warning.png'
+
+
 
 const App = () => {
-
-  //`https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${location}?unitGroup=us&key=TEVQGE7FLBXGQ6YZYYA8C5FW2&contentType=json`
-
+  
   const [weatherData, setWeatherData] = useState()
   const [dayData, setDayData] = useState(false)
   const [tempToggle, setTempToggle] = useState(false)
   const [location, setLocation] = useState('london')
   const [inputField, setinputField] = useState('')
   const [error, setError] = useState(false)
+  const [alertData, setAlertData] = useState(false)
   const apiKey = process.env.REACT_APP_API_KEY
 
   useEffect(() => {
@@ -48,7 +53,6 @@ const App = () => {
       console.error('Geolocation is not supported by this browser.')
     }
   }
-  console.log(location)
 
   function handleChange(e) {
     setinputField(e.target.value)
@@ -58,6 +62,8 @@ const App = () => {
     e.preventDefault()
     setLocation(inputField.toLowerCase())
     setinputField('')
+    setDayData(false)
+    setAlertData(false)
   }
 
   function tempChange(temp) {
@@ -75,9 +81,11 @@ const App = () => {
     return 'Data is unavailable'
   }
 
-  // const time = Number(datetime.slice(0, 2))
-  const time = 11
+  const time = Number(datetime.slice(0, 2))
+  // const time = 10
   const bgStyle = { backgroundImage: time < 10 && time >= 6  ? `url(${sunriseBG})` : time >= 10 && time < 21 ? `url(${sunshineBG})` : time >= 21 && time <= 24 || time >= 0 && time < 6 ? `url(${nightBG})` : '' }
+
+  console.log('alert data', alertData)
 
   return (
     <div className='weather--app--container' style={bgStyle}>
@@ -98,125 +106,62 @@ const App = () => {
         weatherData &&
         <>
           {dayData ? 
-            <div className='single--day--container'>
-              <div className='day--header'>
-                <button className='close--btn' onClick={() => {
-                  setWeatherData(prevData => {
-                    const updatedDay = prevData.days.map(day => {
-                      return { ...day, clicked: false }
-                    })
-                    return { ...prevData, days: updatedDay }
-                  })
-                  setDayData(false)
-                }}>&#10232;</button>
-              </div>
-              <div className='day--weather'>
-                <div className='day--weather--left'>
-                  <h3 className='day--title'>{resolvedAddress}</h3> 
-                  <h3 className='day--weather--left--p'>{new Date(dayData.datetime).toLocaleString('en-GB', { weekday: 'long' })}</h3>
-                  <p className='day--weather--left--p'>{dayData.datetime}</p>
-                  <p className='day--weather--left--p'>Cloud cover: {dayData.cloudcover}</p>
-                  <p className='day--weather--left--p'>Day&apos;s description: {dayData.description}</p>
-                </div>
-                <div className='day--weather--right'>
-                  <div className='sunrise--div'>
-                    <p className='sun--p'>{dayData.sunrise.slice(0, 5)}</p>
-                    <img src={sunriseIcon} style={{ width: 40, height: 40 }} />
-                    <p className='sun--p'>{dayData.sunset.slice(0, 5)}</p>
-                  </div>
-                  <p className='day--weather--right--p'>Max {tempToggle ? `${tempChange(dayData.tempmax)}°C`  : dayData.tempmax + '°F'}</p>
-                  <p className='day--weather--right--p'>Min {tempToggle ? `${tempChange(dayData.tempmin)}°C`  : dayData.tempmin + '°F'}</p>
-                  <p className='day--weather--right--p'>Feels like: {tempToggle ? `${tempChange(dayData.feelslike)}°C`  : dayData.feelslike + '°F'}</p>
-                  <p className='day--weather--right--p'>{dayData.conditions}</p>
-                  <p className='day--weather--right--p'>{tempToggle ? `${tempChange(dayData.temp)}°C`  : dayData.temp + '°F'}</p>
-                  <div className='rain--day--div'>
-                    <p className='day--weather--right--p'>{dayData.precipprob}%</p>
-                    <img src={rainIcon} style={{ width: 40, height: 40 }} />
-                  </div>
-                  <div className='wind--day--div'>
-                    <p className='day--weather--right--p'>{dayData.windspeed}mph</p>
-                    <img src={windIcon} style={{ width: 40, height: 40 }} />
-                  </div>
-                </div>
-              </div>
-              <div className='day--data--hour'>
-                {dayData.hours.map((hour, i) => {
-                  const { conditions, datetime, precipprob, temp, windspeed } = hour
-                  return <div key={i} className='single--hour--div'>
-                    <button className='single--hour--btn'>
-                      <h2 className='single--hour--text'>{datetime.slice(0, 5)}</h2>
-                      <p className='single--hour--text'>{conditions}</p>
-                      <p className='single--hour--text'>{tempToggle ? `${tempChange(temp)}°C`  : temp + '°F'}</p>
-                      <div className='wind--div'>
-                        <img src={windIcon} style={{ width: 40, height: 40 }} />
-                        <p className='single--hour--text'>{windspeed}mph</p>
-                      </div>
-                      <div className='rain--div'>
-                        <img src={rainIcon} style={{ width: 40, height: 40 }} />
-                        <p className='single--hour--text'>{precipprob}%</p>
-                      </div>
-                    </button>
-                  </div>
-                })}
-              </div>
-            </div>
-            :
-            <>
-              <div className='header--current--div'>
-                <header>
-                  <h3>{resolvedAddress}</h3>
-                  <p>Timezone: {timezone}</p>
-                  <p>Day&apos;s description - {description}</p>
-                  <p>{conditions}</p>
-                </header>
+            <SingleDay 
+              dayData={dayData}
+              resolvedAddress={resolvedAddress}
+              tempChange={tempChange}
+              setDayData={setDayData}
+              setWeatherData={setWeatherData}
+              tempToggle={tempToggle}
+            />
+            : alertData && alertData.length > 0 ?
+              <Alerts 
+                alertData={alertData}
+                setAlertData={setAlertData}
+              />
+              :
+              <>
+                <div className='header--current--div'>
+                  <header>
+                    <h3>{resolvedAddress}</h3>
+                    <p>Timezone: {timezone}</p>
+                    <p>Day&apos;s description - {description}</p>
+                    <p>Cloudcover: {cloudcover}</p>
+                    <p>Humidity: {humidity}</p>
+                    <p>{conditions}</p>
+                    {alerts && alerts.length > 0 ? <button className='alert--btn' onClick={() => setAlertData(alerts)}><img style={{ width: 120, height: 80 }} src={warningIcon}/></button> : null}
+                    {alerts && alerts.length > 0 ? <p className='alert--warning--p'>ALERT!</p> : null}
+                  </header>
 
-                <div className='current--conditions'>
-                  <div className='sunrise--div'>
-                    <p className='sun--p'>{sunrise.slice(0, 5)}</p>
-                    <img src={sunriseIcon} style={{ width: 40, height: 40 }} />
-                    <p className='sun--p'>{sunset.slice(0, 5)}</p>
-                  </div>
-                  <p>Feels like: {tempToggle ? `${tempChange(feelslike)}°C`  : feelslike + '°F'}</p>
-                  <p>{tempToggle ? `${tempChange(temp)}°C` : temp + '°F'}</p>
-                  <div className='rain--current--div'>
-                    <img src={rainIcon} style={{ width: 40, height: 40 }} />
-                    <p>{precipprob}%</p>
-                  </div>
-                  <div className='wind--current--div'>
-                    <img src={windIcon} style={{ width: 40, height: 40 }} />
-                    <p>{windspeed}mph</p>
+                  <div className='current--conditions'>
+                    <div className='sunrise--div'>
+                      <p className='sun--p'>{sunrise.slice(0, 5)}</p>
+                      <img src={sunriseIcon} style={{ width: 40, height: 40 }} />
+                      <p className='sun--p'>{sunset.slice(0, 5)}</p>
+                    </div>
+                    <p>Feels like: {tempToggle ? `${tempChange(feelslike)}°C`  : feelslike + '°F'}</p>
+                    <p>{tempToggle ? `${tempChange(temp)}°C` : temp + '°F'}</p>
+                    <div className='rain--current--div'>
+                      <img src={rainIcon} style={{ width: 40, height: 40 }} />
+                      <p>{precipprob}%</p>
+                    </div>
+                    <div className='wind--current--div'>
+                      <img src={windIcon} style={{ width: 40, height: 40 }} />
+                      <p>{windspeed}mph</p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className='days--container'>
-                {days.map((day, index) => {
-                  return <div key={index} className='individual--day'>
-                    <button className='day--btn' value={day.clicked} onClick={() => {
-                      setWeatherData(prevData => {
-                        const updatedDays = [...prevData.days]
-                        updatedDays[index].clicked = !updatedDays[index].clicked
-                        return { ...prevData, days: updatedDays }
-                      })
-                      setDayData(day)
-                    } }>
-                      <>
-                        <h4>{new Date(day.datetime).toLocaleString('en-GB', { weekday: 'long' })}</h4>
-                        <p>{tempToggle ? `${tempChange(day.temp)}°C` : day.temp + '°F'}</p>
-                        <div className='rain--div'>
-                          <img src={rainIcon} style={{ width: 40, height: 40 }} />
-                          <p>{precipprob}%</p>
-                        </div>
-                        <div className='wind--div'>
-                          <img src={windIcon} style={{ width: 40, height: 40 }} />
-                          <p>{day.windspeed}mph</p>
-                        </div>
-                      </>
-                    </button>
-                  </div>
-                })}
-              </div>
-            </>
+                <div className='days--container'>
+                  <AllDays 
+                    days={days}
+                    setDayData={setDayData}
+                    setWeatherData={setWeatherData}
+                    tempToggle={tempToggle}
+                    tempChange={tempChange}
+                  />
+                </div>
+              </>
           }
         </>
       }

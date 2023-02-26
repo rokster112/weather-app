@@ -1,3 +1,23 @@
+@mixin close-button-style {
+  font-size: 3.8rem;
+  text-shadow: 2px 2px 4px #000000;
+  width: 100px;
+  height: 35px;
+  margin-right: 10px;
+  margin-top: 20px;
+  padding-bottom: 7px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(71, 157, 234, 0.3);
+  border-radius: 5px;
+  color: white;
+  &:hover {
+    @content;
+  }
+};
+
+
 * {
   box-sizing: border-box;
 }
@@ -13,6 +33,36 @@ body {
     height: 100vh;
     background-repeat: no-repeat;
     background-size: cover;
+    .alert--warning--p {
+      margin: 0;
+      color: red;
+      text-shadow: 3px 3px 5px #000000;
+    }
+    .alert--btn {
+      position: relative;
+      right: 7%;
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      width: 0;
+      height: 0;
+      margin-bottom: 80px;
+      display: flex;
+
+    }
+    .location--btn, .submit--btn {
+      width: 40px;
+      height: 21px;
+      background-color: rgb(71, 157, 234);
+      font-weight: bold;
+      &:hover {
+        cursor: pointer;
+      }
+    }
+    .location--btn {
+      width: 30px;
+    }
     input {
       background-color: rgba(71, 157, 234, 0.7);
       border-radius: 2px;
@@ -37,6 +87,7 @@ body {
     color: white;
     font-size: 1.2rem;
     text-shadow: 2px 2px 4px #000000;
+    
   }
   .input--temp--div {
     display: flex;
@@ -66,6 +117,7 @@ body {
     justify-content: space-between;
     flex-grow: 1;
     align-items: center;
+    
     .current--conditions {
       text-align: end;
       margin-right: 10px;
@@ -75,6 +127,7 @@ body {
       color: white;
       font-size: 1.2rem;
       text-shadow: 2px 2px 4px #000000;
+      
     }
   }
   .wind--div, .rain--div {
@@ -189,26 +242,42 @@ body {
     display: flex;
     justify-content: end;
     align-items: center;
-    .close--btn {
-      font-size: 3.8rem;
-      text-shadow: 2px 2px 4px #000000;
-      width: 100px;
-      height: 35px;
-      margin-right: 10px;
-      margin-top: 20px;
-      padding-bottom: 7px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: rgba(71, 157, 234, 0.3);
-      border-radius: 5px;
-      color: white;
-      &:hover {
+    .day--close--btn {
+      @include close-button-style {
         cursor: pointer;
         background-color: rgb(42, 151, 246);
         transition: all 0.5s ease-in;
         color: black;
-        
+      }
+    }
+  }
+  .alert--close--btn {
+    position: relative;
+    left: 92%;
+    @include close-button-style {
+      cursor: pointer;
+      background-color: rgb(42, 151, 246);
+      transition: all 0.5s ease-in;
+      color: black;
+    }
+  }
+  .alert--container {
+    .alert--text--container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      text-align: center;
+      .alert--text--div {
+        width: 25%;
+        margin: 5px;
+        background-color: rgba(71, 157, 234, 0.3);
+        a {
+          text-decoration: underline red;
+        }
+        .alert--text {
+          color: white;
+          text-shadow: 2px 2px 4px #000000;
+        }
       }
     }
   }
